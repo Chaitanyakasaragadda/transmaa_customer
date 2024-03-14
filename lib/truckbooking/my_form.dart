@@ -4,17 +4,18 @@ import 'confirmation_page.dart';
 import 'truck.dart';
 
 class MyForm extends StatefulWidget {
-  final String enteredName;
-  final String phoneNumber;
   final String fromLocation;
   final String toLocation;
+  final String enteredName;
+  final String phoneNumber;
+
 
   const MyForm({
     Key? key,
-    required this.enteredName,
-    required this.phoneNumber,
     required this.fromLocation,
     required this.toLocation,
+    required this.enteredName,
+    required this.phoneNumber,
   }) : super(key: key);
 
   @override
@@ -26,6 +27,7 @@ class _MyFormState extends State<MyForm> {
   DateTime? selectedDate = DateTime.now();
   TimeOfDay? selectedTime = TimeOfDay.now();
   Truck? selectedTruck;
+  String? selectedLoad;
 
   TextEditingController _dateController = TextEditingController();
   TextEditingController _timeController = TextEditingController();
@@ -43,13 +45,16 @@ class _MyFormState extends State<MyForm> {
     'Ceramics/Sanitary/Hardware',
     'Paper/Packaging/Printed Material',
   ];
-
   List<Truck> trucks = [
-    Truck(imagePath: 'assets/truck2-removebg-preview.png', name: 'Tipper', price: 500.0, weightCapacity: 4 - 30),
-    Truck(imagePath: 'assets/truck22 remove.png', name: ' Container', price: 600.0, weightCapacity: 4 - 30),
-    Truck(imagePath: 'assets/truck_3-removebg-preview.png', name: 'Open', price: 700.0, weightCapacity: 4 - 30),
-    Truck(imagePath: 'assets/truck_4-removebg-preview.png', name: 'Double Container', price: 800.0, weightCapacity: 1800.0),
-    Truck(imagePath: 'assets/truck_5-removebg-preview.png', name: 'Tanker', price: 900.0, weightCapacity: 2000.0),
+    Truck(imagePath: 'assets/trucks/open.png', name: 'Open', price: 500.0, weightCapacity: '7-43', selectedImageColor: '',),
+    Truck(imagePath: 'assets/trucks/lcv.png', name: 'LCV', price: 600.0, weightCapacity: '2.5-7', selectedImageColor: ''),
+    Truck(imagePath: 'assets/trucks/minipickup.png', name: 'Mini/pickup', price: 700.0, weightCapacity: '0.75-2', selectedImageColor: ''),
+    Truck(imagePath: 'assets/trucks/trailer.png', name: 'Trailer', price: 800.0, weightCapacity: '16-43', selectedImageColor: ''),
+    Truck(imagePath: 'assets/trucks/container.png', name: 'Container', price: 900.0, weightCapacity: '9-30', selectedImageColor: ''),
+    Truck(imagePath: 'assets/trucks/tipper.png', name: 'Tipper', price: 650.0, weightCapacity: '9-30', selectedImageColor: ''),
+    Truck(imagePath: 'assets/trucks/tanker.png', name: 'Tanker', price: 750.0, weightCapacity: '8-36', selectedImageColor: ''),
+    Truck(imagePath: 'assets/trucks/dumper.png', name: 'Dumper', price: 600.0, weightCapacity: '9-36', selectedImageColor: ''),
+    Truck(imagePath: 'assets/trucks/bulker.png', name: 'Bulker', price: 800.0, weightCapacity: '20-36', selectedImageColor: ''),
   ];
 
   @override
@@ -185,6 +190,8 @@ class _MyFormState extends State<MyForm> {
           // Select the current truck
           selectedTruck = trucks[index];
           selectedTruck!.isSelected = true;
+
+          selectedLoad = value as String;
         });
       }
     });
@@ -200,8 +207,6 @@ class _MyFormState extends State<MyForm> {
             selectedTime: selectedTime!,
             selectedTruck: selectedTruck!,
             selectedImageName: selectedTruck!.imagePath,
-            enteredName: widget.enteredName,
-            phoneNumber: widget.phoneNumber,
             fromLocation: widget.fromLocation, // Pass fromLocation here
             toLocation: widget.toLocation, // Pass toLocation here
           ),
@@ -216,9 +221,10 @@ class _MyFormState extends State<MyForm> {
       appBar: AppBar(
         title: Text('Booking Form'),
       ),
-      body: Padding(
+      body:Padding(
         padding: EdgeInsets.all(16.0),
-        child: ListView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               'Select Date and Time',
@@ -239,7 +245,7 @@ class _MyFormState extends State<MyForm> {
                       child: selectedDate == null
                           ? Row(
                         children: [
-                          Icon(Icons.calendar_today, color: Colors.grey),
+                          Icon(Icons.calendar_today, color: Colors.orange),
                           SizedBox(width: 8),
                           Text(
                             'Select Date',
@@ -338,73 +344,85 @@ class _MyFormState extends State<MyForm> {
               ),
             ),
             SizedBox(height: 16.0),
-            for (int index = 0; index < trucks.length; index++)
-              Container(
-                margin: EdgeInsets.only(bottom: 8.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    _showPopup(context, index);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: selectedTruck == trucks[index] ? Colors.grey : Colors.white,
-                    onPrimary: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+            Expanded(
+              child: ListView.builder(
+                itemCount: trucks.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 8.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _showPopup(context, index);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.orange,
+                        backgroundColor:
+                        selectedTruck == trucks[index] ? Colors.orange[300] : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              Image.asset(
+                                trucks[index].imagePath,
+                                height: 60.0,
+                                width: 138.0,
+                                fit: BoxFit.cover,
+                              ),
+                              SizedBox(height: 4.0),
+                              Text(
+                                trucks[index].name,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(width: 8.0),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Price: \$${trucks[index].price.toString()}',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                'Capacity: ${trucks[index].weightCapacity.toString()} Tons',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (selectedTruck == trucks[index]) // Display only for the selected truck
+                            Text(
+                              selectedLoad ?? 'Select Load', // Display the selected load or 'Select Load' if no load is selected
+                              style: TextStyle(color: Colors.black),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      Column(
-                        children: [
-                          Image.asset(
-                            trucks[index].imagePath,
-                            height: 60.0,
-                            width: 120.0,
-                            fit: BoxFit.cover,
-                          ),
-                          SizedBox(height: 4.0),
-                          Text(
-                            trucks[index].name,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 8.0),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Price: \$${trucks[index].price.toString()}',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            'Capacity: ${trucks[index].weightCapacity.toString()} Tons',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                  );
+                },
               ),
-            SizedBox(height: 16.0),
+            ),
             ElevatedButton(
               onPressed: () {
                 _navigateToConfirmationPage();
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.black,
-                onPrimary: Colors.white,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.black,
               ),
               child: Text(
                 'Book Pickup',
@@ -414,6 +432,7 @@ class _MyFormState extends State<MyForm> {
           ],
         ),
       ),
+
     );
   }
 }

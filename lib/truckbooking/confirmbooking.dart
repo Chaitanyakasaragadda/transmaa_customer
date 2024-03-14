@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../bottom_navigation_screens/myhome.dart';
+
 class confirm extends StatelessWidget {
   bool isAccepted = false;
 
@@ -21,7 +23,9 @@ class confirm extends StatelessWidget {
                       Row(
                         children: [
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(context,MaterialPageRoute(builder:(context)=>MyHomePage(enteredName: '', phoneNumber: '',)));
+                            },
                             icon: Icon(Icons.arrow_back, color: Colors.black),
                           ),
                           Text(
@@ -38,11 +42,18 @@ class confirm extends StatelessWidget {
                 ),
                 SizedBox(height: 30),
                 Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .height,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
+                    borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(50)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.5),
@@ -73,7 +84,8 @@ class confirm extends StatelessWidget {
                                 height: 7,
                                 child: LinearProgressIndicator(
                                   backgroundColor: Colors.grey[200],
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.red),
                                 ),
                               ),
                             ),
@@ -90,7 +102,7 @@ class confirm extends StatelessWidget {
                         ),
                       if (!isAccepted)
                         Text(
-                          'Waiting for owner to accept the request...',
+                          'Waiting for Transmaa conformation...',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,

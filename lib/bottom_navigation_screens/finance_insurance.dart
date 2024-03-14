@@ -1,257 +1,243 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FinanceAndInsurance extends StatefulWidget {
+  final String documentId;
+
+  FinanceAndInsurance({required this.documentId});
+
   @override
   _FinanceAndInsuranceState createState() => _FinanceAndInsuranceState();
 }
 
-class _FinanceAndInsuranceState extends State<FinanceAndInsurance> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+class _FinanceAndInsuranceState extends State<FinanceAndInsurance> {
+  String selectedButton = 'insurance'; // Default to insurance
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
+  final TextEditingController vehicleTypeController = TextEditingController();
+  final TextEditingController rcNumberController = TextEditingController();
+  bool showFields = true; // Show insurance fields by default
 
-  TextEditingController textField1Controller = TextEditingController();
-  TextEditingController textField2Controller = TextEditingController();
-  TextEditingController textField3Controller = TextEditingController();
-  TextEditingController textField4Controller = TextEditingController();
-  TextEditingController textField5Controller = TextEditingController();
+  Future<void> submitData() async {
+    if (nameController.text.isNotEmpty &&
+        phoneNumberController.text.isNotEmpty &&
+        vehicleTypeController.text.isNotEmpty &&
+        rcNumberController.text.isNotEmpty) {
+      try {
+        String collectionName =
+        selectedButton == 'finance' ? 'Finance' : 'Insurance';
 
-  String displayedText = '';
-  bool isFinanceSelected = false;
+        await FirebaseFirestore.instance.collection(collectionName).add({
+          'name': nameController.text,
+          'phoneNumber': phoneNumberController.text,
+          'vehicleType': vehicleTypeController.text,
+          'rcNumber': rcNumberController.text,
+        });
 
-  @override
-  void initState() {
-    super.initState();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Data submitted successfully!'),
+          ),
+        );
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 500),
-    );
-
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeIn,
-      ),
-    );
-
-    _controller.forward();
+        nameController.clear();
+        phoneNumberController.clear();
+        vehicleTypeController.clear();
+        rcNumberController.clear();
+      } catch (error) {
+        print('Error submitting data to Firestore: $error');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to submit data. Please try again later.'),
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter all fields.'),
+        ),
+      );
+    }
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void showFieldsWithDelay(String selected) async {
+    setState(() {
+      showFields = false;
+    });
+    await Future.delayed(Duration(milliseconds: 300));
+    setState(() {
+      selectedButton = selected;
+      showFields = true;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
-      body: Center(
+      backgroundColor: Color(0xfff5f5f5),
+      body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            SizedBox(height: 30),
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    'Commercial Vehicles',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Container(
+                    width: 250,
+                    child: Divider(
+                      thickness: 2,
+                      color: Colors.brown,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 5),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  style: ButtonStyle(
-                    elevation: MaterialStateProperty.all<double>(5.0),
-                    shape: MaterialStateProperty.all<
-                        RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
+                SizedBox(
+                  width: 180,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showFieldsWithDelay('finance');
+                    },
+                    child: Text(
+                      'Finance',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
                     ),
-                    backgroundColor:
-                    MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.hovered)) {
-                            return Colors.grey.shade500;
-                          }
-                          return Colors.orangeAccent;
-                        }),
+                    style: ElevatedButton.styleFrom(
+                      primary: selectedButton == 'finance'
+                          ? Colors.green
+                          : Colors.orange,
+                    ),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      isFinanceSelected = true;
-                      _controller.reset();
-                      _controller.forward();
-                    });
-                  },
-                  child: Text('Finance' ,style: TextStyle(color: Colors.white, fontSize: 20),),
                 ),
-                ElevatedButton(
-                  style: ButtonStyle(
-                    elevation: MaterialStateProperty.all<double>(5.0),
-                    shape: MaterialStateProperty.all<
-                        RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
+                SizedBox(width: 10),
+                SizedBox(
+                  width: 180,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showFieldsWithDelay('insurance');
+                    },
+                    child: Text(
+                      'Insurance',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
                     ),
-                    backgroundColor:
-                    MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.hovered)) {
-                            return Colors.grey.shade500;
-                          }
-                          return Colors.orangeAccent;
-                        }),
+                    style: ElevatedButton.styleFrom(
+                      primary: selectedButton == 'insurance'
+                          ? Colors.green
+                          : Colors.orange,
+                    ),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      isFinanceSelected = false;
-                      _controller.reset();
-                      _controller.forward();
-                    });
-                  },
-                  child: Text('Insurance', style: TextStyle(color: Colors.white, fontSize: 20),),
                 ),
               ],
             ),
-            SizedBox(height: 10),
-            buildAnimatedTextFields(),
             SizedBox(height: 20),
-            ElevatedButton(
-                style: ButtonStyle(
-                  elevation: MaterialStateProperty.all<double>(5.0),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  fixedSize: MaterialStateProperty.all<Size>(
-                    Size(double.maxFinite, 35),
-                  ),
-                  backgroundColor:
-                  MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.hovered)) {
-                        return Colors.grey.shade500;
-                      }
-                      return Colors.orangeAccent;
-                    },
+            if (showFields)
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      buildTextField('Name', nameController),
+                      SizedBox(height: 7),
+                      buildTextField('Phone Number', phoneNumberController),
+                      SizedBox(height: 7),
+                      buildTextField('Type of Vehicle', vehicleTypeController),
+                      SizedBox(height: 7),
+                      buildTextField('RC Number', rcNumberController),
+                      SizedBox(height: 25),
+                      SizedBox(
+                        width: 150,
+                        height: 40,
+                        child: ElevatedButton(
+                          onPressed: submitData,
+                          child: Text(
+                            'Submit',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.grey[800],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                    ],
                   ),
                 ),
-                onPressed:(){
-
-                }, child: Text('Confirm',style: TextStyle(color: Colors.black, fontSize: 20),))
-
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget buildAnimatedTextFields() {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _animation.value,
-          child: Transform.translate(
-            offset: Offset(0, 50 * (1 - _animation.value)),
-            child: child,
-          ),
-        );
-      },
+  Widget buildTextField(String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.all(5),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isFinanceSelected)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: TextField(
-                controller: textField1Controller,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[A-Z]')), // Allow only numbers
-                  // Limit length to 10 characters
-                ],
-
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Name',
+          Padding(
+            padding: const EdgeInsets.only(left: 20),
+            child: Text(
+              label,
+              style: TextStyle(color: Colors.black, fontSize: 15),
+            ),
+          ),
+          SizedBox(height: 5.0),
+          Container(
+            height: 50,
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: TextField(
+              controller: controller,
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
-              ),
-            ),
-
-          if (!isFinanceSelected)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: TextField(
-                controller: textField3Controller,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[A-Z]')), // Allow only numbers
-                  // Limit length to 10 characters
-                ],
-
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Name',
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: 8, horizontal: 12),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
-              ),
-            ),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextField(
-              controller: textField5Controller,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), // Allow only numbers
-                // Limit length to 10 characters
-              ],
-
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Phone NUmber',
-              ),
-            ),
-
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextField(
-              controller: textField5Controller,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')), // Allow only numbers
-                // Limit length to 10 characters
-              ],
-
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Vechile Number',
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextField(
-              controller: textField5Controller,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')), // Allow only numbers
-                // Limit length to 10 characters
-              ],
-
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Vechile Model',
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextField(
-              controller: textField5Controller,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')), // Allow only numbers
-                // Limit length to 10 characters
-              ],
-
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'RC No',
               ),
             ),
           ),

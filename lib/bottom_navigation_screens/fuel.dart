@@ -15,7 +15,7 @@ class _FuelState extends State<Fuel> {
         title: Text('Fuel'),
       ),
       body: Center(
-        child: Text('Fuel'),
+        child: Text('coming soon',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
       ),
     );
   }

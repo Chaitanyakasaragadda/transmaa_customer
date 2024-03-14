@@ -91,14 +91,17 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
         child: Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [Colors.grey, Color(0xffBBDABB)]),
+            gradient: LinearGradient(colors: [Colors.white, Colors.white]),
           ),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             width: double.infinity,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(
+                  height: 150,
+                ),
                 Text(
                   'Verify your Phone Number',
                   style: TextStyle(
@@ -108,7 +111,7 @@ class _OTPState extends State<OTP> with SingleTickerProviderStateMixin {
                   textAlign: TextAlign.start,
                 ),
                 SizedBox(
-                  height: 50,
+                  height: 30,
                 ),
                 Pinput(
                   length: 6,

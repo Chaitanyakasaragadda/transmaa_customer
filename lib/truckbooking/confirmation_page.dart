@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'confirmbooking.dart';
 import 'truck.dart';
 
@@ -9,12 +10,9 @@ class ConfirmationPage extends StatelessWidget {
   final TimeOfDay selectedTime;
   final Truck selectedTruck;
   final String selectedImageName;
-  final String enteredName;
-  final String phoneNumber;
-  final String fromLocation; // Added parameter for from location
-  final String toLocation; // Added parameter for to location
+  final String fromLocation;
+  final String toLocation;
 
-  // Define a custom color for the outlined boxes
   final Color outlinedBoxColor = Colors.orange;
   final Color containerOutlineColor = Colors.white;
 
@@ -24,43 +22,63 @@ class ConfirmationPage extends StatelessWidget {
     required this.selectedTime,
     required this.selectedTruck,
     required this.selectedImageName,
-    required this.enteredName,
-    required this.phoneNumber,
     required this.fromLocation,
     required this.toLocation,
   });
-
   void _confirmPickup(BuildContext context) async {
     try {
-      // Construct the data to be stored in Firebase
-      Map<String, dynamic> pickupData = {
-        'selectedGoodsType': selectedGoodsType,
-        'selectedDate': selectedDate,
-        'selectedTime': selectedTime.toString(),
-        'selectedTruck': {
-          'name': selectedTruck?.name ?? '',
-          'price': selectedTruck?.price ?? 0,
-          'weightCapacity': selectedTruck?.weightCapacity ?? 0,
-        },
-        'enteredName': enteredName, // Include entered name
-        'phoneNumber': phoneNumber, // Include phone number
-        'fromLocation': fromLocation ?? '',
-        'toLocation': toLocation ?? '',
-        // Add any other relevant data fields here
-      };
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Fetch user data from Firestore
+        DocumentSnapshot userData = await FirebaseFirestore.instance
+            .collection('user')
+            .doc(user.uid)
+            .get();
 
-      // Store the data in Firebase Firestore
-      await FirebaseFirestore.instance
-          .collection('pickup_requests')
-          .add(pickupData);
-      print('Data stored in Firebase successfully');
+        String name = userData.get('name');
+        String phoneNumber = userData.get('phoneNumber');
 
-      // Navigate to the next screen
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => confirm()));
+        // Construct the data to be stored in Firebase
+        Map<String, dynamic> pickupData = {
+          'selectedGoodsType': selectedGoodsType,
+          'selectedDate': selectedDate,
+          'selectedTime': selectedTime.toString(),
+          'selectedTruck': {
+            'name': selectedTruck?.name ?? '',
+            'price': selectedTruck?.price ?? 0,
+            'weightCapacity': selectedTruck?.weightCapacity ?? 0,
+          },
+          'customerName': name,
+          'customerphoneNumber': phoneNumber,
+          'fromLocation': fromLocation ?? '',
+          'toLocation': toLocation ?? '',
+          // Add any other relevant data fields here
+        };
+
+        // Store the data in Firebase Firestore
+        await FirebaseFirestore.instance
+            .collection('pickup_requests')
+            .add(pickupData);
+        print('Data stored in Firebase successfully');
+
+        // Navigate to the confirmation screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => confirm()),
+        );
+      } else {
+        print('User not logged in');
+      }
     } catch (e) {
       print('Error storing data in Firebase: $e');
       // Handle the error as needed
+      // Optionally, show a snackbar or dialog to inform the user of the error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -84,8 +102,7 @@ class ConfirmationPage extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(color: containerOutlineColor),
                 borderRadius: BorderRadius.circular(10.0),
-                color: Colors
-                    .transparent, // Transparent color for container to show the outlined border
+                color: Colors.transparent,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +111,6 @@ class ConfirmationPage extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Image on the left
                       SizedBox(
                         height: 20,
                       ),
@@ -102,19 +118,17 @@ class ConfirmationPage extends StatelessWidget {
                         children: [
                           Image.asset(
                             selectedImageName,
-                            width: 120.0, // Set the desired width
+                            width: 120.0,
                             fit: BoxFit.cover,
                           ),
                         ],
                       ),
-                      // Horizontal line between image and details
                       Container(
                         height: 80.0,
                         width: 1.0,
-                        color: outlinedBoxColor, // Set the line color to orange
+                        color: outlinedBoxColor,
                         margin: const EdgeInsets.symmetric(horizontal: 16.0),
                       ),
-                      // Selected truck details in a column
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,7 +157,6 @@ class ConfirmationPage extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Divider(color: outlinedBoxColor),
-                  // Divider below the box
                   SizedBox(height: 8.0),
                   Row(
                     children: [
@@ -161,7 +174,7 @@ class ConfirmationPage extends StatelessWidget {
                               decoration: BoxDecoration(
                                 border: Border.all(color: outlinedBoxColor),
                                 borderRadius: BorderRadius.circular(5.0),
-                                color: outlinedBoxColor,
+                                color: Colors.orange[300],
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -174,7 +187,8 @@ class ConfirmationPage extends StatelessWidget {
                                     ),
                                     SizedBox(width: 8.0),
                                     Text(
-                                      '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                      '${selectedDate.day}/${selectedDate
+                                          .month}/${selectedDate.year}',
                                       style: TextStyle(fontSize: 16.0),
                                     ),
                                   ],
@@ -199,7 +213,7 @@ class ConfirmationPage extends StatelessWidget {
                               decoration: BoxDecoration(
                                 border: Border.all(color: outlinedBoxColor),
                                 borderRadius: BorderRadius.circular(5.0),
-                                color: outlinedBoxColor,
+                                color: Colors.orange[300],
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -225,7 +239,6 @@ class ConfirmationPage extends StatelessWidget {
                     ],
                   ),
                   Divider(color: outlinedBoxColor),
-                  // Divider below date and time
                   SizedBox(height: 8.0),
                   Text(
                     'From Location:',
@@ -243,7 +256,6 @@ class ConfirmationPage extends StatelessWidget {
                   SizedBox(height: 8.0),
                   buildBoxTextFieldWithIcon(toLocation, Icons.location_on),
                   Divider(color: outlinedBoxColor),
-                  // Divider below "to" location
                   SizedBox(height: 8.0),
                 ],
               ),
@@ -256,8 +268,7 @@ class ConfirmationPage extends StatelessWidget {
         child: ElevatedButton(
           onPressed: () => _confirmPickup(context),
           style: ElevatedButton.styleFrom(
-            primary: Colors.black,
-            onPrimary: Colors.white,
+            foregroundColor: Colors.white, backgroundColor: Colors.black,
           ),
           child: Text(
             'Confirm Pickup',
@@ -273,7 +284,7 @@ class ConfirmationPage extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: outlinedBoxColor),
         borderRadius: BorderRadius.circular(5.0),
-        color: outlinedBoxColor,
+        color: Colors.orange[300],
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../login/login_page.dart';
+import '../profile/help.dart';
 import 'buy_sell.dart';
 import 'finance_insurance.dart';
 import 'fuel.dart';
@@ -9,7 +10,7 @@ import 'profile.dart';
 
 class MyHomePage extends StatefulWidget {
   final String enteredName;
-  final String phoneNumber;// Add this field
+  final String phoneNumber;
 
   MyHomePage({Key? key, required this.enteredName,
     required this.phoneNumber}) : super(key: key);
@@ -32,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
         phoneNumber: widget.phoneNumber,
       ),
       BuyAndSell(),
-      FinanceAndInsurance(),
+      FinanceAndInsurance(documentId: '',),
       Fuel(),
       Profile()
     ];
@@ -70,36 +71,26 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         actions: <Widget>[
-          Tooltip(
-            message: 'Notifications',
-            child: Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: IconButton(
-                onPressed: () {},
-                icon: ImageIcon(AssetImage('assets/icons/bell.png')),
-              ),
-            ),
-          ),
+
           Tooltip(
             message: 'Help',
             child: Padding(
               padding: const EdgeInsets.only(right: 10),
               child: IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HelpPage(),
+                    ),
+                  );
+
+                },
                 icon: ImageIcon(AssetImage('assets/icons/question.png')),
               ),
             ),
           ),
-          Tooltip(
-            message: 'Logout',
-            child: Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: IconButton(
-                onPressed: () => _logout(context), // Pass the context here
-                icon: Icon(Icons.login_outlined),
-              ),
-            ),
-          ),
+
         ],
       ),
       body: _screens[_selectedIndex],
@@ -118,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: ImageIcon(
                 AssetImage('assets/icons/financeandinsurance_icon.png')),
-            label: 'Finance & Insurance',
+            label: 'Finance &\nInsurance',
           ),
           BottomNavigationBarItem(
             icon: ImageIcon(AssetImage('assets/icons/buyandsell_icon.png')),

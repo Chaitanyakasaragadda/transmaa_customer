@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -39,11 +40,13 @@ class _LoadsState extends State<Loads> {
   List<PlaceSuggestion> _fromSuggestions = [];
   List<PlaceSuggestion> _toSuggestions = [];
 
-  String? name; // Define userName here
+
+  String userName = '';
 
   @override
   void initState() {
     super.initState();
+    fetchUserData();
     _controller = ScrollController();
     timer = Timer.periodic(Duration(seconds: 3), (Timer t) {
       if (_currentIndex < 1) {
@@ -61,7 +64,6 @@ class _LoadsState extends State<Loads> {
     _fromController = TextEditingController();
     _toController = TextEditingController();
 
-    _fetchUserName(); // Fetch the user name when the widget initializes
   }
 
   @override
@@ -72,23 +74,30 @@ class _LoadsState extends State<Loads> {
     super.dispose();
   }
 
-  Future<void> _fetchUserName() async {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        setState(() {
-          name = user.displayName; // Retrieve user's display name
-        });
-      }
-    } catch (e) {
-      print('Error fetching user name: $e');
+  Future<void> fetchUserData() async {
+    // Get the current user
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('user')
+          .doc(user.uid)
+          .get();
+
+      // Extract user data from the document
+      setState(() {
+        userName = userDoc['name'];
+      });
     }
   }
+
 
   Future<List<PlaceSuggestion>> fetchFromSuggestions(String query) async {
     try {
       final response = await http.get(
-        Uri.parse('https://nominatim.openstreetmap.org/search?q=$query&format=json'),
+        Uri.parse(
+            'https://nominatim.openstreetmap.org/search?q=$query&format=json&viewbox=68.1,6.5,97.4,35.5&bounded=1&countrycodes=in'),
       );
 
       if (response.statusCode == 200) {
@@ -121,7 +130,7 @@ class _LoadsState extends State<Loads> {
             Padding(
               padding: EdgeInsets.only(left: 18, top: 15),
               child: Text(
-                "Hi ${name ?? 'there'},", // Display user name here
+                "Hi $userName", // Display user name here
                 style: TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,

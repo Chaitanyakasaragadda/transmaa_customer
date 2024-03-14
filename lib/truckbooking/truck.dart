@@ -2,7 +2,8 @@ class Truck {
   final String imagePath;
   final String name;
   final double price;
-  final double weightCapacity;
+  final String weightCapacity;
+  final String selectedImageColor;
   bool isSelected; // Add isSelected property
 
   Truck({
@@ -10,6 +11,8 @@ class Truck {
     required this.name,
     required this.price,
     required this.weightCapacity,
+    required this.selectedImageColor,
     this.isSelected = false, // Provide a default value for isSelected
   });
 }
+
