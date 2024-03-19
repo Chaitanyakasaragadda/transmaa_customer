@@ -29,12 +29,13 @@ class _ProfileState extends State<Profile> {
     });
   }
 
+
   Future<void> fetchUserData() async {
     // Get the current user
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      // Get user document from Firestore
+
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('user')
           .doc(user.uid)
@@ -47,7 +48,6 @@ class _ProfileState extends State<Profile> {
       });
     }
   }
-
 
 
   @override

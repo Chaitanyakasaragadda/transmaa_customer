@@ -332,7 +332,10 @@ class _LoadsState extends State<Loads> {
                                 }),
                           ),
                           onPressed: () {
-                            Navigator.push(
+                            // Check if both text fields are not empty
+                            if (_fromController.text.isNotEmpty && _toController.text.isNotEmpty) {
+                              // Both fields are filled, navigate to the next screen
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => MyForm(
@@ -341,8 +344,37 @@ class _LoadsState extends State<Loads> {
                                     fromLocation: _fromController.text,
                                     toLocation: _toController.text,
                                   ),
-                                )
-                            );},
+                                ),
+                              );
+                            } else {
+                              String errorMessage = '';
+                              if (_fromController.text.isEmpty) {
+                                errorMessage += "Please fill 'From' field.\n";
+                              }
+                              if (_toController.text.isEmpty) {
+                                errorMessage += "Please fill 'To' field.\n";
+                              }
+
+                              // Show error message indicating empty field(s)
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Error"),
+                                    content: Text(errorMessage),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("OK"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
                           child: Text(
                             "Confirm",
                             style: TextStyle(color: Colors.black, fontSize: 20),
