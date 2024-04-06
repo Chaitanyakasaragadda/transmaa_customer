@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 
 class FinanceAndInsurance extends StatefulWidget {
   final String documentId;
@@ -11,18 +12,15 @@ class FinanceAndInsurance extends StatefulWidget {
 }
 
 class _FinanceAndInsuranceState extends State<FinanceAndInsurance> {
-  String selectedButton = 'insurance'; // Default to insurance
+  String selectedButton = 'insurance';
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneNumberController = TextEditingController();
   final TextEditingController vehicleTypeController = TextEditingController();
   final TextEditingController rcNumberController = TextEditingController();
-  bool showFields = true; // Show insurance fields by default
+  bool showFields = true;
 
   Future<void> submitData() async {
-    if (nameController.text.isNotEmpty &&
-        phoneNumberController.text.isNotEmpty &&
-        vehicleTypeController.text.isNotEmpty &&
-        rcNumberController.text.isNotEmpty) {
+    if (_formKey.currentState!.validate()) {
       try {
         String collectionName =
         selectedButton == 'finance' ? 'Finance' : 'Insurance';
@@ -52,12 +50,6 @@ class _FinanceAndInsuranceState extends State<FinanceAndInsurance> {
           ),
         );
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please enter all fields.'),
-        ),
-      );
     }
   }
 
@@ -72,103 +64,107 @@ class _FinanceAndInsuranceState extends State<FinanceAndInsurance> {
     });
   }
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xfff5f5f5),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 30),
-            Center(
-              child: Column(
-                children: [
-                  Text(
-                    'Commercial Vehicles',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Container(
-                    width: 250,
-                    child: Divider(
-                      thickness: 2,
-                      color: Colors.brown,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(
-                  width: 180,
-                  height: 40,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showFieldsWithDelay('finance');
-                    },
-                    child: Text(
-                      'Finance',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      primary: selectedButton == 'finance'
-                          ? Colors.green
-                          : Colors.orange,
-                    ),
+              SizedBox(height: 30),
+          Center(
+            child: Column(
+              children: [
+                Text(
+                  'Commercial Vehicles',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
                 ),
-                SizedBox(width: 10),
-                SizedBox(
-                  width: 180,
-                  height: 40,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showFieldsWithDelay('insurance');
-                    },
-                    child: Text(
-                      'Insurance',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      primary: selectedButton == 'insurance'
-                          ? Colors.green
-                          : Colors.orange,
-                    ),
+                Container(
+                  width: 250,
+                  child: Divider(
+                    thickness: 2,
+                    color: Colors.brown,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
-            if (showFields)
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
+          ),
+          SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 180,
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: () {
+                    showFieldsWithDelay('finance');
+                  },
+                  child: Text(
+                    'Finance',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    primary: selectedButton == 'finance'
+                        ? Colors.green
+                        : Colors.orange,
+                  ),
                 ),
-                child: Center(
+              ),
+              SizedBox(width: 10),
+              SizedBox(
+                width: 180,
+                height: 40,
+                child: ElevatedButton(
+                  onPressed: () {
+                    showFieldsWithDelay('insurance');
+                  },
+                  child: Text(
+                    'Insurance',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    primary: selectedButton == 'insurance'
+                        ? Colors.green
+                        : Colors.orange,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+          if (showFields)
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Form(
+                  key: _formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      buildTextField('Name', nameController),
+                      buildTextField('Name', nameController, 'alphabets'),
                       SizedBox(height: 7),
-                      buildTextField('Phone Number', phoneNumberController),
+                      buildTextField('Phone Number', phoneNumberController, 'phone'),
                       SizedBox(height: 7),
-                      buildTextField('Type of Vehicle', vehicleTypeController),
+                      buildTextField('Type of Vehicle', vehicleTypeController, 'both'),
                       SizedBox(height: 7),
-                      buildTextField('RC Number', rcNumberController),
+                      buildTextField('RC Number', rcNumberController, 'both'),
                       SizedBox(height: 25),
                       SizedBox(
                         width: 150,
@@ -197,13 +193,55 @@ class _FinanceAndInsuranceState extends State<FinanceAndInsurance> {
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+              ],
+          ),
       ),
     );
   }
 
-  Widget buildTextField(String label, TextEditingController controller) {
+  Widget buildTextField(String label, TextEditingController controller, String inputType) {
+    RegExp alphabetsRegex = RegExp(r'^[a-zA-Z]+$');
+    RegExp numbersRegex = RegExp(r'^[0-9]+$');
+
+    InputValidation inputValidation = InputValidation(inputFormatter: [], validator: null);
+
+    if (inputType == 'phone') {
+      inputValidation = InputValidation(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'Phone number is required';
+          } else if (!numbersRegex.hasMatch(value)) {
+            return 'Enter only numeric characters';
+          }
+          return null;
+        },
+        inputFormatter: [FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(10)],
+      );
+    } else if (inputType == 'alphabets') {
+      inputValidation = InputValidation(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'Field is required';
+          } else if (!alphabetsRegex.hasMatch(value)) {
+            return 'Enter only alphabetic characters';
+          }
+          return null;
+        },
+        inputFormatter: [FilteringTextInputFormatter.allow(alphabetsRegex)],
+      );
+    } else if (inputType == 'both') {
+      inputValidation = InputValidation(
+        validator: (value) {
+          if (value!.isEmpty) {
+            return 'Field is required';
+          }
+          return null;
+        },
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(5),
       child: Column(
@@ -220,7 +258,7 @@ class _FinanceAndInsuranceState extends State<FinanceAndInsurance> {
           Container(
             height: 50,
             padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: TextField(
+            child: TextFormField(
               controller: controller,
               style: TextStyle(
                   color: Colors.black,
@@ -239,10 +277,20 @@ class _FinanceAndInsuranceState extends State<FinanceAndInsurance> {
                   borderRadius: BorderRadius.circular(10.0),
                 ),
               ),
+              inputFormatters: inputValidation.inputFormatter,
+              validator: inputValidation.validator,
             ),
           ),
         ],
       ),
     );
   }
+
+}
+
+class InputValidation {
+  final List<TextInputFormatter>? inputFormatter;
+  final String? Function(String?)? validator;
+
+  InputValidation({this.inputFormatter, this.validator});
 }

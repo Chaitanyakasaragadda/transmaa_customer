@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'otp_page.dart';
 
@@ -78,7 +79,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     Expanded(
                       child: TextField(
                         controller: nameController,
-                        decoration: const InputDecoration(
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+                        ],
+                        decoration:  InputDecoration(
                           hintText: 'Enter your name',
                           border: InputBorder.none,
                         ),
@@ -126,6 +130,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             phone = value;
                           });
                         },
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),],
                         decoration: const InputDecoration(
                           hintText: 'Enter your number',
                           border: InputBorder.none,
