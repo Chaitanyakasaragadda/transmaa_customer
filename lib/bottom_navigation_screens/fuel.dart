@@ -11,11 +11,9 @@ class _FuelState extends State<Fuel> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Fuel'),
-      ),
+
       body: Center(
-        child: Text('coming soon',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
+        child: Text(' Fuel coming soon',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
       ),
     );
   }

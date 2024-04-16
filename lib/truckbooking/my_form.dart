@@ -72,10 +72,13 @@ class _MyFormState extends State<MyForm> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day); // Ensuring time is set to 00:00:00
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
+      initialDate: selectedDate ?? today,
+      firstDate: today, // Set to today's date to disable past dates
       lastDate: DateTime(2101),
     );
 
@@ -86,6 +89,7 @@ class _MyFormState extends State<MyForm> {
       });
     }
   }
+
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -113,7 +117,27 @@ class _MyFormState extends State<MyForm> {
     });
   }
   void _navigateToConfirmationPage() {
-    if (selectedTruck != null) {
+    if (selectedTruck == null) {
+      // Show AlertDialog if no truck is selected
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Truck Not Selected"),
+            content: Text("Please select a truck to proceed with booking."),
+            actions: <Widget>[
+              TextButton(
+                child: Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      // Navigate to the confirmation page if a truck is selected
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -123,8 +147,8 @@ class _MyFormState extends State<MyForm> {
             selectedTime: selectedTime!,
             selectedTruck: selectedTruck!,
             selectedImageName: selectedTruck!.imagePath,
-            fromLocation: widget.fromLocation, // Pass fromLocation here
-            toLocation: widget.toLocation, // Pass toLocation here
+            fromLocation: widget.fromLocation,
+            toLocation: widget.toLocation,
           ),
         ),
       );

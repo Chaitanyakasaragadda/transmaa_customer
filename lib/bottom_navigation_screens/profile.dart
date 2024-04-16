@@ -184,7 +184,7 @@ class _ProfileState extends State<Profile> {
                                       child: Text(
                                         "Confirm Logging Out",
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: 21,
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -255,7 +255,7 @@ class _ProfileState extends State<Profile> {
                       },
                       child: Text(
                         "Logout",
-                        style: TextStyle(color: Colors.black, fontSize: 20),
+                        style: TextStyle(color: Colors.black, fontSize: 21),
                       ),
                     ),
                   ),
